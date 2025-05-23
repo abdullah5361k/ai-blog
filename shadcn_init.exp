@@ -1,0 +1,31 @@
+#!/usr/bin/expect -f
+
+set timeout 60
+
+spawn npx shadcn@latest init
+
+expect "*Which style would you like to use?*"
+send -- "Default\r"
+
+expect "*Which color would you like to use as the base color?*"
+send -- "Slate\r"
+
+expect "*Where is your global CSS file?*"
+send -- "app/globals.css\r"
+
+expect "*Would you like to use CSS variables for colors?*"
+send -- "yes\r"
+
+expect "*Where is your tailwind.config.js file?*"
+send -- "tailwind.config.ts\r"
+
+expect "*Configure import alias for components:*"
+send -- "components\r"
+
+expect "*Configure import alias for utils:*"
+send -- "@/*\r"
+
+expect "*Are these settings correct?*"
+send -- "yes\r"
+
+expect eof
