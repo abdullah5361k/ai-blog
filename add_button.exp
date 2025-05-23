@@ -1,0 +1,7 @@
+#!/usr/bin/expect -f
+
+set timeout 60
+
+spawn npx shadcn-ui@latest add button
+
+expect eof
