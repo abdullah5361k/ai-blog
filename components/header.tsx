@@ -4,15 +4,20 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { Menu } from "lucide-react";
+import { Menu, PenSquare } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { navBarRoutes } from "@/lib/routes";
+import SignInModal from "./auth/sign-in-modal";
+import SignUpModal from "./auth/sign-up-modal";
 
 export default function Header() {
   const pathname = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isSignInOpen, setIsSignInOpen] = useState(false);
+  const [isSignUpOpen, setIsSignUpOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -54,7 +59,40 @@ export default function Header() {
         </nav>
 
         <div className="flex items-center gap-2">
+          {/* {isSearchOpen ? (
+            <div className="flex items-center">
+              <SearchBar />
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={() => setIsSearchOpen(false)}
+              >
+                <X className="h-5 w-5" />
+              </Button>
+            </div>
+          ) : (
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={() => setIsSearchOpen(true)}
+              className="hidden md:flex"
+            >
+              <Search className="h-5 w-5" />
+            </Button>
+          )} */}
+
           <ThemeToggle />
+
+          <div className="hidden md:flex items-center gap-2">
+            <Button variant="outline" className="gap-2">
+              <PenSquare className="h-4 w-4" />
+              Write Blog
+            </Button>
+            <Button variant="ghost" onClick={() => setIsSignInOpen(true)}>
+              Sign in
+            </Button>
+            <Button onClick={() => setIsSignUpOpen(true)}>Sign up</Button>
+          </div>
 
           <Sheet>
             <SheetTrigger asChild>
@@ -78,12 +116,39 @@ export default function Header() {
                     {route.name}
                   </Link>
                 ))}
-                <div className="mt-4"></div>
+                {/* <div className="mt-4">
+                  <SearchBar />
+                </div> */}
+                <div className="flex flex-col gap-2 mt-4">
+                  <Button variant="outline" className="gap-2">
+                    <PenSquare className="h-4 w-4" />
+                    Write Blog
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => setIsSignInOpen(true)}
+                  >
+                    Sign in
+                  </Button>
+                  <Button onClick={() => setIsSignUpOpen(true)}>Sign up</Button>
+                </div>
               </nav>
             </SheetContent>
           </Sheet>
         </div>
       </div>
+
+      <SignInModal
+        isOpen={isSignInOpen}
+        onClose={() => setIsSignInOpen(false)}
+        onOpenSignUp={() => setIsSignUpOpen(true)}
+      />
+
+      <SignUpModal
+        isOpen={isSignUpOpen}
+        onClose={() => setIsSignUpOpen(false)}
+        onOpenSignIn={() => setIsSignInOpen(true)}
+      />
     </header>
   );
 }

@@ -508,7 +508,7 @@ export const posts: Post[] = [
       <ul>
         <li>Defining the creative vision and parameters</li>
         <li>Selecting, refining, and combining AI-generated options</li>
-        <li>Adding the human touch and perspective that gives work its distinctive character</li>
+        <li>Adding the human touch and Teche that gives work its distinctive character</li>
         <li>Making judgment calls about quality, appropriateness, and alignment with objectives</li>
       </ul>
       
@@ -532,7 +532,7 @@ export const posts: Post[] = [
       <p>AI can generate content, but it doesn't have authentic intentions or purposes behind its creations. Human creators bring:</p>
       
       <ul>
-        <li>Genuine perspective and point of view</li>
+        <li>Genuine Teche and point of view</li>
         <li>Authentic emotional connection to the work</li>
         <li>Purpose-driven creation aimed at meaningful impact</li>
         <li>Cultural context and sensitivity</li>

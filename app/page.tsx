@@ -1,16 +1,12 @@
-// import { getFeaturedPosts, getRecentPosts } from '@/lib/data'
-// import FeaturedPost from '@/components/FeaturedPost'
-// import PostCard from '@/components/PostCard'
-// import Newsletter from '@/components/Newsletter'
-// import CategoryList from '@/components/CategoryList'
-
 import CategoryList from "@/components/category-list";
+import FeaturedPost from "@/components/featured-posts";
 import HomePageWelcomeSession from "@/components/home-page-welcome-session";
+import RecentArticles from "@/components/recent-articles";
 import SearchBar from "@/components/search";
+import { getFeaturedPosts } from "@/lib/static-data";
 
 export default function HomePage() {
-  // const featuredPosts = getFeaturedPosts();
-  // const recentPosts = getRecentPosts().slice(0, 6);
+  const featuredPosts = getFeaturedPosts();
 
   return (
     <div className="container py-8 md:py-12">
@@ -20,8 +16,16 @@ export default function HomePage() {
       <section className="mb-8">
         <SearchBar />
       </section>
-      <section>
+      <section className="mb-8">
         <CategoryList className="mb-8" />
+        <div className="grid gap-6">
+          {featuredPosts.map((post, index) => (
+            <FeaturedPost key={post.id} post={post} priority={index === 0} />
+          ))}
+        </div>
+      </section>
+      <section className="mb-12">
+        <RecentArticles />
       </section>
     </div>
   );
