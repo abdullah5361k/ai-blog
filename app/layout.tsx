@@ -4,6 +4,7 @@ import { Inter } from "next/font/google";
 import { Merriweather } from "next/font/google";
 import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/components/theme-provider";
+import { Providers } from "./providers"; // Adjust path if needed
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 
@@ -44,11 +45,13 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <div className="relative flex min-h-screen flex-col">
-            <Header />
-            <main className="flex-1">{children}</main>
-            <Footer />
-          </div>
+          <Providers>
+            <div className="relative flex min-h-screen flex-col">
+              <Header />
+              <main className="flex-1">{children}</main>
+              <Footer />
+            </div>
+          </Providers>
         </ThemeProvider>
       </body>
     </html>

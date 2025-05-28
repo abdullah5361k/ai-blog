@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSession, signOut } from "next-auth/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -18,6 +19,7 @@ export default function Header() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isSignInOpen, setIsSignInOpen] = useState(false);
   const [isSignUpOpen, setIsSignUpOpen] = useState(false);
+  const { data: session, status } = useSession();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -88,10 +90,25 @@ export default function Header() {
               <PenSquare className="h-4 w-4" />
               Write Blog
             </Button>
-            <Button variant="ghost" onClick={() => setIsSignInOpen(true)}>
-              Sign in
-            </Button>
-            <Button onClick={() => setIsSignUpOpen(true)}>Sign up</Button>
+            {status === "loading" ? (
+              <p className="text-sm text-muted-foreground">Loading...</p>
+            ) : session ? (
+              <>
+                <span className="text-sm font-medium">
+                  {session.user?.name}
+                </span>
+                <Button variant="ghost" onClick={() => signOut()}>
+                  Sign out
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button variant="ghost" onClick={() => setIsSignInOpen(true)}>
+                  Sign in
+                </Button>
+                <Button onClick={() => setIsSignUpOpen(true)}>Sign up</Button>
+              </>
+            )}
           </div>
 
           <Sheet>
@@ -124,13 +141,38 @@ export default function Header() {
                     <PenSquare className="h-4 w-4" />
                     Write Blog
                   </Button>
-                  <Button
-                    variant="outline"
-                    onClick={() => setIsSignInOpen(true)}
-                  >
-                    Sign in
-                  </Button>
-                  <Button onClick={() => setIsSignUpOpen(true)}>Sign up</Button>
+                  {status === "loading" ? (
+                    <p className="text-sm text-muted-foreground">Loading...</p>
+                  ) : session ? (
+                    <>
+                      <span className="text-sm font-medium text-center py-2">
+                        {session.user?.name}
+                      </span>
+                      <Button variant="outline" onClick={() => signOut()}>
+                        Sign out
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          setIsSignInOpen(true);
+                          // Potentially close the sheet here if needed
+                        }}
+                      >
+                        Sign in
+                      </Button>
+                      <Button
+                        onClick={() => {
+                          setIsSignUpOpen(true);
+                          // Potentially close the sheet here if needed
+                        }}
+                      >
+                        Sign up
+                      </Button>
+                    </>
+                  )}
                 </div>
               </nav>
             </SheetContent>
