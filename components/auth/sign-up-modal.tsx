@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { signIn } from "next-auth/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import {
@@ -63,10 +64,44 @@ export default function SignUpModal({
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       setIsLoading(true);
-      // Here you would typically handle user registration
-      console.log(values);
+      const response = await fetch("/api/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: values.name,
+          email: values.email,
+          password: values.password,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Registration error:", errorData.message);
+        // Optional: Set an error state to display the message to the user
+        // For example: setAuthError(errorData.message || "Registration failed");
+        return;
+      }
+
+      // If registration is successful, try to sign in
+      const result = await signIn("credentials", {
+        email: values.email,
+        password: values.password,
+        redirect: false,
+      });
+
+      if (result?.ok && !result?.error) {
+        onClose();
+        // Optional: Add success notification or redirect
+      } else {
+        console.error("Sign-in error after registration:", result?.error);
+        // Optional: Set an error state to display a message
+        // For example: setAuthError("Registration successful, but sign-in failed. Please sign in manually.");
+      }
     } catch (error) {
-      console.error(error);
+      console.error("Unexpected error during sign-up:", error);
+      // Optional: setAuthError("An unexpected error occurred.");
     } finally {
       setIsLoading(false);
     }

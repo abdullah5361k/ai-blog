@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { signIn } from "next-auth/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import {
@@ -54,10 +55,23 @@ export default function SignInModal({
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       setIsLoading(true);
-      // Here you would typically handle authentication
-      console.log(values);
+      const result = await signIn("credentials", {
+        email: values.email,
+        password: values.password,
+        redirect: false,
+      });
+
+      if (result?.ok && !result?.error) {
+        onClose();
+        // Optional: Add success notification or redirect
+      } else {
+        console.error("Sign-in error:", result?.error);
+        // Optional: Set an error state to display a message to the user
+        // For example: setAuthError(result?.error || "Invalid credentials");
+      }
     } catch (error) {
-      console.error(error);
+      console.error("Unexpected error during sign-in:", error);
+      // Optional: setAuthError("An unexpected error occurred.");
     } finally {
       setIsLoading(false);
     }
