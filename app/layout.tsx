@@ -19,7 +19,7 @@ const fontSerif = Merriweather({
 });
 
 export const metadata: Metadata = {
-  title: "Perspective | A Modern Blog",
+  title: "Teche | A Modern Blog",
   description:
     "Explore thought-provoking articles on technology, design, and culture",
 };
