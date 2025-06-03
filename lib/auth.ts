@@ -1,14 +1,10 @@
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { MongoDBAdapter } from "@next-auth/mongodb-adapter";
 import mongooseConnect from "@/lib/mongoose";
 import User from "../models/User.model";
-import bcryptjs from "bcryptjs";
+import { passwordCompare } from "@/utils/backend";
 
 const authOptions: NextAuthOptions = {
-  adapter: MongoDBAdapter(
-    mongooseConnect().then((client) => client.connection.getClient())
-  ),
   providers: [
     CredentialsProvider({
       name: "credentials",
@@ -29,21 +25,23 @@ const authOptions: NextAuthOptions = {
           throw new Error("No user found with this email");
         }
 
-        const passwordsMatch = await bcryptjs.compare(
-          credentials.password,
-          user.password
-        );
+        const passwordsMatch = await passwordCompare(credentials.password, user.password);
 
         if (!passwordsMatch) {
           throw new Error("Incorrect password");
         }
 
-        return user;
+        return {
+          id: user._id.toString(),
+          name: user.name,
+          email: user.email,
+        };
       },
     }),
   ],
   session: {
     strategy: "jwt",
+    maxAge: 60 * 60,   // 1 hour
   },
   secret: process.env.NEXTAUTH_SECRET,
   callbacks: {
@@ -56,7 +54,7 @@ const authOptions: NextAuthOptions = {
     },
     async session({ session, token }) {
       if (token && session.user) {
-        session.user.id = token.id;
+        session.user.id = token.id as string;
         session.user.name = token.name;
       }
       return session;

@@ -1,68 +1,70 @@
+// app/api/register/route.ts
 import { NextResponse } from "next/server";
 import mongooseConnect from "@/lib/mongoose";
 import User from "@/models/User.model";
-import bcryptjs from "bcryptjs";
+import { z } from "zod";
+import { passwordHashing } from "@/utils/backend";
+
+
+const registerSchema = z.object({
+  name: z
+    .string()
+    .trim()
+    .min(2, "Name must be at least 2 characters")
+    .max(50, "Name must be ≤ 50 characters"),
+  email: z
+    .string()
+    .email("Must be a valid email address")
+    .max(254, "Email is too long"), // RFC-3696 practical limit
+  password: z
+    .string()
+    .min(8, "Password must be at least 8 characters")
+    // Requires 1 upper, 1 lower, 1 digit, 1 special char
+    .regex(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\w\s]).+$/,
+      "Password must include upper-case, lower-case, number and symbol"
+    ),
+});
+
+
 
 export async function POST(request: Request) {
   try {
-    const { name, email, password } = await request.json();
+    // Parse & validate in one step
+    const body = await request.json();
+    const parse = registerSchema.safeParse(body);
 
-    // Basic validation
-    if (!name || !email || !password) {
+    if (!parse.success) {
       return NextResponse.json(
-        { message: "Missing required fields" },
+        {
+          message: "Validation failed",
+          errors: parse.error.flatten().fieldErrors,
+        },
         { status: 400 }
       );
     }
 
-    // Optional: More specific email validation (regex can be more comprehensive)
-    if (!/\S+@\S+\.\S+/.test(email)) {
-      return NextResponse.json(
-        { message: "Invalid email format" },
-        { status: 400 }
-      );
-    }
-
-    // Optional: Password length validation
-    if (password.length < 8) {
-      return NextResponse.json(
-        { message: "Password must be at least 8 characters long" },
-        { status: 400 }
-      );
-    }
+    const { name, email, password } = parse.data; // strongly-typed
 
     await mongooseConnect();
 
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
+    if (await User.exists({ email })) {
       return NextResponse.json(
         { message: "User already exists" },
-        { status: 409 } // 409 Conflict
+        { status: 409 }
       );
     }
 
-    const hashedPassword = await bcryptjs.hash(password, 10);
+    const hashedPassword = await passwordHashing(password, 10);
 
-    const newUser = new User({
-      name,
-      email,
-      password: hashedPassword,
-    });
-
-    await newUser.save();
+    const user = await User.create({ name, email, password: hashedPassword });
 
     return NextResponse.json(
-      { message: "User created successfully", userId: newUser._id },
+      { message: "User created successfully", userId: user._id, userName: user.name, userEmail: user.email },
       { status: 201 }
     );
-  } catch (error) {
-    console.error("Registration error:", error);
-    if (error instanceof Error && error.name === "ValidationError") {
-      return NextResponse.json(
-        { message: "Validation failed", errors: (error as any).errors },
-        { status: 400 }
-      );
-    }
+  } catch (err) {
+    console.error("Registration error:", err);
     return NextResponse.json(
       { message: "Internal server error" },
       { status: 500 }
