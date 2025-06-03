@@ -57,7 +57,6 @@ export async function POST(request: Request) {
     );
   } catch (error) {
     console.error("Registration error:", error);
-    // Check for specific Mongoose validation errors if needed
     if (error instanceof Error && error.name === "ValidationError") {
       return NextResponse.json(
         { message: "Validation failed", errors: (error as any).errors },

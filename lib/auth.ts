@@ -2,11 +2,13 @@ import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { MongoDBAdapter } from "@next-auth/mongodb-adapter";
 import mongooseConnect from "@/lib/mongoose";
-import User from "@/models/User.model";
+import User from "../models/User.model";
 import bcryptjs from "bcryptjs";
 
-export const authOptions: NextAuthOptions = {
-  adapter: MongoDBAdapter(mongooseConnect().then(client => client.connection.getClient())),
+const authOptions: NextAuthOptions = {
+  adapter: MongoDBAdapter(
+    mongooseConnect().then((client) => client.connection.getClient())
+  ),
   providers: [
     CredentialsProvider({
       name: "credentials",
@@ -48,19 +50,18 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
-        // @ts-ignore
-        token.name = user.name; 
+        token.name = user.name;
       }
       return token;
     },
     async session({ session, token }) {
       if (token && session.user) {
-        // @ts-ignore
         session.user.id = token.id;
-        // @ts-ignore
         session.user.name = token.name;
       }
       return session;
     },
   },
 };
+
+export default authOptions;
